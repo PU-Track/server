@@ -1,0 +1,41 @@
+name: Deploy Backend Server to EC2
+
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH access
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: Connect to EC2 and deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd ~/server
+          
+            echo "📥 Pulling latest code..."
+            git pull origin deploy
+          
+            echo "🛑 Stopping existing container..."
+            docker stop putrack-container || true
+            docker rm putrack-container || true
+            docker rmi putrack-server || true
+          
+            echo "🐳 Building new Docker image..."
+            docker build -t putrack-server .
+          
+            echo "🚀 Running new container..."
+            docker run -d --name putrack-container -p 8080:8080 putrack-server
+          
+            echo "✅ Deployment completed!"
+          EOF
