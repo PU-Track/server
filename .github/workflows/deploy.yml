@@ -24,6 +24,8 @@ jobs:
             cd ~/server
           
             echo "📥 Pulling latest code..."
+            git reset --hard HEAD
+            git clean -fd
             git pull origin deploy
           
             echo "🛑 Stopping existing container..."
