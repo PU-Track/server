@@ -1,4 +1,4 @@
-name: Deploy Backend Server to EC2
+name: Build and Deploy Backend Server
 
 on:
   push:
@@ -6,38 +6,39 @@ on:
       - deploy
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Set up SSH access
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t 13155a1/putrack-server:latest .
+
+      - name: Push Docker image to DockerHub
+        run: docker push 13155a1/putrack-server:latest
+
+      - name: Set up SSH access to EC2
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
 
-      - name: Connect to EC2 and deploy
+      - name: Connect to EC2 and run new image
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/server
-          
-            echo "📥 Pulling latest code..."
-            git reset --hard HEAD
-            git clean -fd
-            git pull origin deploy
-          
             echo "🛑 Stopping existing container..."
             sudo docker stop putrack-container || true
             sudo docker rm putrack-container || true
-            sudo docker rmi putrack-server || true
-          
-            echo "🐳 Building new Docker image..."
-            sudo docker build -t putrack-server .
-          
+
+            echo "🐳 Pulling latest image..."
+            sudo docker pull 13155a1/putrack-server:latest
+
             echo "🚀 Running new container..."
-            sudo docker run -d --name putrack-container -p 8080:8080 putrack-server
-          
+            sudo docker run -d --name putrack-container -p 8080:8080 13155a1/putrack-server:latest
+
             echo "✅ Deployment completed!"
           EOF
