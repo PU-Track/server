@@ -27,9 +27,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
 
+      - name: Copy Firebase credentials to EC2
+        run: |
+          echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" > firebase-key.json
+          scp -o StrictHostKeyChecking=no firebase-key.json ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/secrets/firebase-key.json
+
       - name: Connect to EC2 and run new image
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
             echo "🛑 Stopping existing container..."
             sudo docker stop putrack-container || true
             sudo docker rm putrack-container || true
@@ -38,7 +43,13 @@ jobs:
             sudo docker pull 13155a1/putrack-server:latest
 
             echo "🚀 Running new container..."
-            sudo docker run -d --name putrack-container -p 8080:8080 13155a1/putrack-server:latest
+            sudo docker run -d \
+              --name putrack-container \
+              -p 8080:8080 \
+              -e FIREBASE_CREDENTIALS_PATH=/app/credentials/firebase-key.json \
+              -e FIREBASE_DB_URL=${{ secrets.FIREBASE_DB_URL }} \
+              -v /home/ubuntu/secrets/firebase-key.json:/app/credentials/firebase-key.json \
+              13155a1/putrack-server:latest
 
             echo "✅ Deployment completed!"
           EOF
