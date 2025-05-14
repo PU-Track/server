@@ -30,6 +30,7 @@ jobs:
       - name: Copy Firebase credentials to EC2
         run: |
           echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" > firebase-key.json
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p /home/ubuntu/secrets"
           scp -o StrictHostKeyChecking=no firebase-key.json ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/secrets/firebase-key.json
 
       - name: Connect to EC2 and run new image
