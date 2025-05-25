@@ -1,4 +1,4 @@
-package putrack.server.entitiy;
+package putrack.server.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -27,8 +27,8 @@ public class Patient {
     @Column(nullable = false)
     private Integer weight;
 
-    @OneToMany(mappedBy = "patient")
-    private List<Device> devices;
+    @OneToOne(mappedBy = "patient")
+    private Device devices;
 
     @OneToMany(mappedBy = "patient")
     private List<Alert> alerts;

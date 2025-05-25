@@ -49,6 +49,10 @@ jobs:
               -p 8080:8080 \
               -e FIREBASE_CREDENTIALS_PATH=/app/credentials/firebase-key.json \
               -e FIREBASE_DB_URL=${{ secrets.FIREBASE_DB_URL }} \
+              -e RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }} \
+              -e RDS_DB_NAME=${{ secrets.RDS_DB_NAME }} \
+              -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \
+              -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \
               -v /home/ubuntu/secrets/firebase-key.json:/app/credentials/firebase-key.json \
               13155a1/putrack-server:latest
 

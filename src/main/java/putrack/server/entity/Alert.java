@@ -1,4 +1,4 @@
-package putrack.server.entitiy;
+package putrack.server.entity;
 
 import jakarta.persistence.*;
 
