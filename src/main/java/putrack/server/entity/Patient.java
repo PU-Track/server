@@ -1,9 +1,13 @@
 package putrack.server.entity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 
 @Entity
+@Setter @Getter
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +31,9 @@ public class Patient {
     @Column(nullable = false)
     private Integer weight;
 
+    @Column(nullable = false, length = 50)
+    private String token;
+
     @OneToOne(mappedBy = "patient")
     private Device devices;
 
@@ -35,6 +42,7 @@ public class Patient {
 
     @OneToMany(mappedBy = "patient")
     private List<Prediction> predictions;
+
 
     @ManyToMany
     @JoinTable(

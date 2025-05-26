@@ -1,10 +1,14 @@
 package putrack.server.entity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 
 
 @Entity
+@Setter @Getter
 public class Caregiver {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +22,9 @@ public class Caregiver {
 
     @Column(nullable = false, length = 50)
     private String name;
+
+    @Column(nullable = false, length = 50)
+    private String token;
 
     @ManyToMany(mappedBy = "caregivers")
     private List<Patient> patients;
