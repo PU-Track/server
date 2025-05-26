@@ -24,7 +24,10 @@ public class Caregiver {
     private String name;
 
     @Column(nullable = false, length = 50)
-    private String token;
+    private String code;
+
+    @Column(nullable = false, length = 50)
+    private String pushToken;
 
     @ManyToMany(mappedBy = "caregivers")
     private List<Patient> patients;

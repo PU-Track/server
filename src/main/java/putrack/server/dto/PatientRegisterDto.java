@@ -10,4 +10,5 @@ public class PatientRegisterDto {
     private Integer age;
     private String gender;
     private Integer weight;
+    private String pushToken;
 }

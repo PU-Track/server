@@ -24,7 +24,7 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
 
-        String token = RandomStringUtils.random(8, true, false).toUpperCase();
+        String code = RandomStringUtils.random(8, true, false).toUpperCase();
 
 
         Patient patient = new Patient();
@@ -34,7 +34,8 @@ public class UserService {
         patient.setAge(dto.getAge());
         patient.setGender(dto.getGender());
         patient.setWeight(dto.getWeight());
-        patient.setToken(token);
+        patient.setPushToken(dto.getPushToken());
+        patient.setCode(code);
 
         return patientRepository.save(patient);
     }
@@ -45,13 +46,14 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
         }
 
-        String token = RandomStringUtils.random(8, true, false).toUpperCase();
+        String code = RandomStringUtils.random(8, true, false).toUpperCase();
 
         Caregiver caregiver = new Caregiver();
         caregiver.setUsername(dto.getUsername());
         caregiver.setPassword(dto.getPassword());
         caregiver.setName(dto.getName());
-        caregiver.setToken(token);
+        caregiver.setPushToken(dto.getPushToken());
+        caregiver.setCode(code);
 
         return caregiverRepository.save(caregiver);
     }

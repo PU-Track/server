@@ -32,7 +32,7 @@ public class Patient {
     private Integer weight;
 
     @Column(nullable = false, length = 50)
-    private String token;
+    private String code;
 
     @OneToOne(mappedBy = "patient")
     private Device devices;
@@ -43,6 +43,8 @@ public class Patient {
     @OneToMany(mappedBy = "patient")
     private List<Prediction> predictions;
 
+    @Column(nullable = false, length = 50)
+    private String pushToken;
 
     @ManyToMany
     @JoinTable(
