@@ -27,11 +27,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
 
-      - name: Decode and copy Firebase credentials to EC2
+      - name: Decode and copy Firebase and FCM credentials to EC2
         run: |
           echo "${{ secrets.FIREBASE_CREDENTIALS_BASE64 }}" | base64 -d > firebase-key.json
+          echo "${{ secrets.FCM_CREDENTIALS_BASE64 }}" | base64 -d > fcm-key.json
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p /home/ubuntu/secrets"
           scp -o StrictHostKeyChecking=no firebase-key.json ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/secrets/firebase-key.json
+          scp -o StrictHostKeyChecking=no fcm-key.json ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/secrets/fcm-key.json
 
       - name: Connect to EC2 and run new image
         run: |
@@ -48,12 +50,14 @@ jobs:
               --name putrack-container \
               -p 8080:8080 \
               -e FIREBASE_CREDENTIALS_PATH=/app/credentials/firebase-key.json \
+              -e FCM_CREDENTIALS_PATH=/app/credentials/fcm-key.json \
               -e FIREBASE_DB_URL=${{ secrets.FIREBASE_DB_URL }} \
               -e RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }} \
               -e RDS_DB_NAME=${{ secrets.RDS_DB_NAME }} \
               -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \
               -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \
               -v /home/ubuntu/secrets/firebase-key.json:/app/credentials/firebase-key.json \
+              -v /home/ubuntu/secrets/fcm-key.json:/app/credentials/fcm-key.json \
               13155a1/putrack-server:latest
 
             echo "✅ Deployment completed!"
