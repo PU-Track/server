@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class PollingService {
     private final FirebaseService firebaseService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 6000000)
     public void pollingFirebase() {
         System.out.println("Firebase 데이터 체크 중: " + LocalDateTime.now());
         firebaseService.readData();
