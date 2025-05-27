@@ -34,7 +34,12 @@ public class Caregiver {
     @Column(length = 50)
     private String pushToken;
 
-    @ManyToMany(mappedBy = "caregivers")
+    @ManyToMany
+    @JoinTable(
+            name = "PatientCaregiver",
+            joinColumns = @JoinColumn(name = "caregiver_id"),
+            inverseJoinColumns = @JoinColumn(name = "patient_id")
+    )
     private List<Patient> patients;
 
     public void assignPatients(List<Patient> patients) {

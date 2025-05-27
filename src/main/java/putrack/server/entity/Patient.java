@@ -48,11 +48,6 @@ public class Patient {
     @OneToMany(mappedBy = "patient")
     private List<Prediction> predictions;
 
-    @ManyToMany
-    @JoinTable(
-            name = "PatientCaregiver",
-            joinColumns = @JoinColumn(name = "patient_id"),
-            inverseJoinColumns = @JoinColumn(name = "caregiver_id")
-    )
+    @ManyToMany(mappedBy = "patients")
     private List<Caregiver> caregivers;
 }
