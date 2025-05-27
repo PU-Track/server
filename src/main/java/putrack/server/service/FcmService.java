@@ -24,6 +24,7 @@ public class FcmService {
 
         String targetToken = caregiver.getPushToken();
 
+        System.out.println("FirebaseApp.getApps():" + FirebaseApp.getApps());
         FirebaseApp fcmApp = FirebaseApp.getInstance("fcmApp");
         FirebaseMessaging messaging = FirebaseMessaging.getInstance(fcmApp);
 
