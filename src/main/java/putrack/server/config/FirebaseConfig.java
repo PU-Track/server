@@ -42,6 +42,7 @@ public class FirebaseConfig {
         FileInputStream fcmServiceAccount = new FileInputStream(fcmCredentialsPath);
         FirebaseOptions fcmOptions = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(fcmServiceAccount))
+                .setProjectId("pu-track-pushnotification")
                 .build();
 
         boolean hasFcmApp = FirebaseApp.getApps().stream()
