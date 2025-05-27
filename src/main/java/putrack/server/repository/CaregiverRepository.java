@@ -5,4 +5,6 @@ import putrack.server.entity.Caregiver;
 
 public interface CaregiverRepository extends JpaRepository<Caregiver, Integer> {
     boolean existsByUsername(String username);
+
+    Caregiver findByCode(String code);
 }
