@@ -35,7 +35,7 @@ public class FcmService {
 
         Message message = Message.builder()
                 .setToken(targetToken)
-                .putData("notification", notification.toString())
+                .setNotification(notification)
                 .build();
 
         return messaging.send(message);
