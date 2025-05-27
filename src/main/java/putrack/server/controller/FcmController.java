@@ -18,7 +18,7 @@ public class FcmController {
 
     @PostMapping("/send")
     @Operation(summary = "알림 전송", description = "사용자에게 알림을 전송합니다.")
-    public String sendNotification(@Parameter(description = "알림을 보낼 사용자 식별 코드") @RequestParam String code, @RequestBody FcmRequestDto requestDto) {
+    public String sendNotification(@Parameter(description = "알림을 보낼 사용자 식별 코드") @RequestParam("code") String code, @RequestBody FcmRequestDto requestDto) {
         try {
             String response = fcmService.sendMessage(
                     code,

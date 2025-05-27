@@ -54,4 +54,12 @@ public class UserService {
 
         return caregiverRepository.save(caregiver);
     }
+
+    @Transactional
+    public void registerCaregiverPushToken(String code, String pushToken) {
+        Caregiver caregiver = caregiverRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("해당 간병인을 찾을 수 없습니다: " + code));
+
+        caregiver.setPushToken(pushToken);
+    }
 }

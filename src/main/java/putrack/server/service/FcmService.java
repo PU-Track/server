@@ -17,7 +17,7 @@ public class FcmService {
 
     public String sendMessage(String code, String title, String body) throws FirebaseMessagingException {
 
-        Caregiver caregiver = caregiverRepository.findByCode(code);
+        Caregiver caregiver = caregiverRepository.findByCode(code).orElseThrow(() -> new IllegalArgumentException("해당 간병인을 찾을 수 없습니다: " + code));;
         if (caregiver == null || caregiver.getPushToken() == null) {
             throw new IllegalArgumentException("해당 code에 대한 pushToken이 존재하지 않습니다.");
         }
