@@ -15,18 +15,22 @@ public class Caregiver {
     private Integer caregiverId;
 
     @Column(nullable = false, length = 50)
-    private String username;
-
-    @Column(nullable = false, length = 100)
-    private String password;
-
-    @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false, length = 50)
+    private Integer age;
+
+    @Column(nullable = false, length = 1)
+    private String gender;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CaregiverRole role;
+
+    @Column(length = 50)
     private String code;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String pushToken;
 
     @ManyToMany(mappedBy = "caregivers")
