@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
-@Tag(name = "User", description = "User (환자, 보호자) 등록 API")
+@Tag(name = "User", description = "User API")
 public class UserController {
 
     @Autowired
