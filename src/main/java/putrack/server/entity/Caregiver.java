@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,9 +31,21 @@ public class Caregiver {
     @Column(length = 50)
     private String code;
 
-    @Column(length = 50)
+    @Column(columnDefinition = "TEXT")
     private String pushToken;
 
-    @ManyToMany(mappedBy = "caregivers")
+    @ManyToMany
+    @JoinTable(
+            name = "PatientCaregiver",
+            joinColumns = @JoinColumn(name = "caregiver_id"),
+            inverseJoinColumns = @JoinColumn(name = "patient_id")
+    )
     private List<Patient> patients;
+
+    public void assignPatients(List<Patient> patients) {
+        if (this.patients == null) {
+            this.patients = new ArrayList<>();
+        }
+        this.patients.addAll(patients);
+    }
 }
