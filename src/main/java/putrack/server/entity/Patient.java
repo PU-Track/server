@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalTime;
 import java.util.List;
 
 
@@ -14,12 +15,6 @@ public class Patient {
     private Integer patientId;
 
     @Column(nullable = false, length = 50)
-    private String username;
-
-    @Column(nullable = false, length = 100)
-    private String password;
-
-    @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false)
@@ -29,10 +24,20 @@ public class Patient {
     private String gender;
 
     @Column(nullable = false)
-    private Integer weight;
+    private Double weight;
 
-    @Column(nullable = false, length = 50)
-    private String code;
+    @Column(nullable = false)
+    private Double height;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private PatientStatus status;
+
+    @Column
+    private Integer averageInterval;
+
+    @Column
+    private LocalTime averageWakeUpTime;
 
     @OneToOne(mappedBy = "patient")
     private Device devices;
@@ -42,9 +47,6 @@ public class Patient {
 
     @OneToMany(mappedBy = "patient")
     private List<Prediction> predictions;
-
-    @Column(nullable = false, length = 50)
-    private String pushToken;
 
     @ManyToMany
     @JoinTable(
