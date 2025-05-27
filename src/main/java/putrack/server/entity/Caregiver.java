@@ -31,7 +31,7 @@ public class Caregiver {
     @Column(length = 50)
     private String code;
 
-    @Column(length = 50)
+    @Column(columnDefinition = "TEXT")
     private String pushToken;
 
     @ManyToMany
