@@ -42,19 +42,24 @@ public class UserService {
 
     @Transactional
     public Caregiver registerCaregiver(CaregiverRegisterDto dto) {
-        if (caregiverRepository.existsByUsername(dto.getUsername())) {
-            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
-        }
 
-        String code = RandomStringUtils.random(8, true, false).toUpperCase();
+        String code = RandomStringUtils.random(4, true, false).toUpperCase();
 
         Caregiver caregiver = new Caregiver();
-        caregiver.setUsername(dto.getUsername());
-        caregiver.setPassword(dto.getPassword());
         caregiver.setName(dto.getName());
-        caregiver.setPushToken(dto.getPushToken());
+        caregiver.setAge(dto.getAge());
+        caregiver.setGender(dto.getGender());
+        caregiver.setRole(dto.getRole());
         caregiver.setCode(code);
 
         return caregiverRepository.save(caregiver);
+    }
+
+    @Transactional
+    public void registerCaregiverPushToken(String code, String pushToken) {
+        Caregiver caregiver = caregiverRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("해당 간병인을 찾을 수 없습니다: " + code));
+
+        caregiver.setPushToken(pushToken);
     }
 }
