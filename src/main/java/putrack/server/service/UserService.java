@@ -6,13 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import putrack.server.dto.CaregiverRegisterDto;
 import putrack.server.entity.Caregiver;
+import putrack.server.entity.Patient;
 import putrack.server.repository.CaregiverRepository;
+import putrack.server.repository.PatientRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final CaregiverRepository caregiverRepository;
+    private final PatientRepository patientRepository;
 
     @Transactional
     public Caregiver registerCaregiver(CaregiverRegisterDto dto) {
@@ -25,6 +30,9 @@ public class UserService {
         caregiver.setGender(dto.getGender());
         caregiver.setRole(dto.getRole());
         caregiver.setCode(code);
+
+        List<Patient> allPatients = patientRepository.findAll();
+        caregiver.assignPatients(allPatients);
 
         return caregiverRepository.save(caregiver);
     }

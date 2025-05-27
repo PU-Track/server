@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,4 +36,11 @@ public class Caregiver {
 
     @ManyToMany(mappedBy = "caregivers")
     private List<Patient> patients;
+
+    public void assignPatients(List<Patient> patients) {
+        if (this.patients == null) {
+            this.patients = new ArrayList<>();
+        }
+        this.patients.addAll(patients);
+    }
 }
