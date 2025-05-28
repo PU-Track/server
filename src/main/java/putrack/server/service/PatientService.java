@@ -98,17 +98,22 @@ public class PatientService {
     }
 
     @Transactional
-    public List<AlertDto> getAlertForPatient(Integer patientId) {
+    public AlertListDto getAlertForPatient(Integer patientId) {
         LocalDateTime now = LocalDateTime.now();
 
         List<Alert> alerts = alertRepository.findByPatient_PatientIdAndTimestampLessThanEqual(patientId, now);
 
-        return alerts.stream().map(alert -> {
+        List<AlertDto> alertDtos = alerts.stream().map(alert -> {
             AlertDto dto = new AlertDto();
             dto.setContent(alert.getContent());
             dto.setTimestamp(alert.getTimestamp());
             return dto;
         }).collect(Collectors.toList());
+
+        AlertListDto alertListDto = new AlertListDto();
+        alertListDto.setAlertList(alertDtos);
+
+        return alertListDto;
     }
 
     private AverageDataDto convertToDto(AverageData entity) {
