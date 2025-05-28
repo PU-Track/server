@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import putrack.server.dto.PatientStatusDto;
 import putrack.server.dto.PredictedDateTimeDto;
+import putrack.server.dto.WeekAverageDataDto;
 import putrack.server.service.PatientService;
 
 @RestController
@@ -19,5 +20,11 @@ public class PatientController {
     @PostMapping("/{patientId}/changeTime")
     public PredictedDateTimeDto predictChangeTime(@PathVariable("patientId") Integer patientId, @RequestBody PatientStatusDto dto) {
         return patientService.predictChangeTime(patientId, dto);
+    }
+
+    @Operation(summary = "지난주/이번주 평균 데이터", description = "지난주와 이번주의 평균 온습도, 방석 온도, 체위 변경 주기 데이터를 반환합니다.")
+    @GetMapping("/{patientId}/averageData")
+    public WeekAverageDataDto getWeekAverageData(@PathVariable("patientId") Integer patientId) {
+        return patientService.getWeekAverageData(patientId);
     }
 }

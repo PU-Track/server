@@ -5,17 +5,22 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import putrack.server.dto.AverageDataDto;
 import putrack.server.dto.PatientStatusDto;
 import putrack.server.dto.PredictedDateTimeDto;
+import putrack.server.dto.WeekAverageDataDto;
+import putrack.server.entity.AverageData;
 import putrack.server.entity.Patient;
 import putrack.server.entity.PatientStatus;
+import putrack.server.repository.AverageDataRepository;
 import putrack.server.repository.PatientRepository;
+import java.util.*;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Duration;
+import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -23,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final AverageDataRepository averageDataRepository;
 
     @Transactional
     public PredictedDateTimeDto predictChangeTime(Integer patientId, PatientStatusDto dto) {
@@ -48,6 +54,56 @@ public class PatientService {
         resDto.setPredictedDateTime(predictedTime);
 
         return resDto;
+    }
+
+    @Transactional
+    public WeekAverageDataDto getWeekAverageData(Integer patientId) {
+        LocalDate today = LocalDate.now();
+        LocalDate thisMonday = today.with(DayOfWeek.MONDAY);
+        LocalDate lastMonday = thisMonday.minusWeeks(1);
+
+        LocalDate thisWeekStart = thisMonday;
+        LocalDate thisWeekEnd = today;
+
+        LocalDate lastWeekStart = lastMonday;
+        LocalDate lastWeekEnd = lastMonday.with(DayOfWeek.SUNDAY);
+
+        List<AverageData> lastWeekData = averageDataRepository.findByPatientPatientIdAndDateBetween(
+                patientId, lastWeekStart, lastWeekEnd
+        );
+
+        List<AverageData> thisWeekData = averageDataRepository.findByPatientPatientIdAndDateBetween(
+                patientId, thisWeekStart, thisWeekEnd
+        );
+
+        List<AverageDataDto> lastWeekDto = lastWeekData.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        List<AverageDataDto> thisWeekDto = thisWeekData.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        WeekAverageDataDto result = new WeekAverageDataDto();
+        result.setLastWeekData(lastWeekDto);
+        result.setThisWeekData(thisWeekDto);
+
+        return result;
+    }
+
+    private AverageDataDto convertToDto(AverageData entity) {
+        AverageDataDto dto = new AverageDataDto();
+        dto.setDate(entity.getDate());
+        dto.setAirTemp(entity.getAirTemp());
+        dto.setAirHumid(entity.getAirHumid());
+        dto.setCushionTemp(entity.getCushionTemp());
+        dto.setChangeInterval(entity.getChangeInterval());
+        dto.setDayOfWeek(getDayOfWeekShort(entity.getDate()));
+        return dto;
+    }
+
+    private String getDayOfWeekShort(LocalDate date) {
+        return date.getDayOfWeek().name().substring(0, 3);
     }
 
     private LocalDateTime predictForLyingStatus(Integer patientId, LocalDateTime now) {
@@ -120,4 +176,5 @@ public class PatientService {
 
         return predictedTime;
     }
+
 }
