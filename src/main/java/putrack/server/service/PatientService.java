@@ -1,5 +1,9 @@
 package putrack.server.service;
 
+import com.openai.client.OpenAIClient;
+import com.openai.models.ChatModel;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,8 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final AverageDataRepository averageDataRepository;
     private final AlertRepository alertRepository;
+
+    private final OpenAIClient client;
 
     @Transactional
     public PredictedDateTimeDto predictChangeTime(Integer patientId, PatientStatusDto dto) {
@@ -92,17 +98,22 @@ public class PatientService {
     }
 
     @Transactional
-    public List<AlertDto> getAlertForPatient(Integer patientId) {
+    public AlertListDto getAlertForPatient(Integer patientId) {
         LocalDateTime now = LocalDateTime.now();
 
         List<Alert> alerts = alertRepository.findByPatient_PatientIdAndTimestampLessThanEqual(patientId, now);
 
-        return alerts.stream().map(alert -> {
+        List<AlertDto> alertDtos = alerts.stream().map(alert -> {
             AlertDto dto = new AlertDto();
             dto.setContent(alert.getContent());
             dto.setTimestamp(alert.getTimestamp());
             return dto;
         }).collect(Collectors.toList());
+
+        AlertListDto alertListDto = new AlertListDto();
+        alertListDto.setAlertList(alertDtos);
+
+        return alertListDto;
     }
 
     private AverageDataDto convertToDto(AverageData entity) {
@@ -140,6 +151,10 @@ public class PatientService {
         if (!nextWakeUp.isAfter(now)) {
             nextWakeUp = nextWakeUp.plusDays(1);
         }
+
+        String chatResponse = getChatResponse("재밌는 옛날 얘기 해줘");
+
+        System.out.println("OpenAI Response: " + chatResponse);
 
         return nextWakeUp;
     }
@@ -191,4 +206,13 @@ public class PatientService {
         return predictedTime;
     }
 
+    public String getChatResponse(String prompt) {
+        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                .addUserMessage(prompt)
+                .model(ChatModel.GPT_4_1) // GPT-4 Turbo
+                .build();
+
+        ChatCompletion chatCompletion = client.chat().completions().create(params);
+        return chatCompletion.choices().get(0).message().content().orElse("No response");
+    }
 }

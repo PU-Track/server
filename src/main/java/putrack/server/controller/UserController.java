@@ -42,7 +42,7 @@ public class UserController {
 
     @Operation(summary = "환자 정보 리스트", description = "간병인에 대한 환자 정보 리스트")
     @GetMapping("/caregiver/{code}/patients")
-    public List<PatientDto> getPatientsByCaregiverCode(@PathVariable("code") String code) {
+    public PatientListDto getPatientsByCaregiverCode(@PathVariable("code") String code) {
         return userService.getPatientsByCaregiverCode(code);
     }
 }
