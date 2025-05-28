@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import putrack.server.dto.CaregiverCodeDto;
 import putrack.server.dto.CaregiverRegisterDto;
 import putrack.server.dto.PatientDto;
 import putrack.server.entity.Caregiver;
@@ -22,7 +23,7 @@ public class UserService {
     private final PatientRepository patientRepository;
 
     @Transactional
-    public Caregiver registerCaregiver(CaregiverRegisterDto dto) {
+    public CaregiverCodeDto registerCaregiver(CaregiverRegisterDto dto) {
 
         String code = RandomStringUtils.random(4, true, false).toUpperCase();
 
@@ -36,7 +37,12 @@ public class UserService {
         List<Patient> allPatients = patientRepository.findAll();
         caregiver.assignPatients(allPatients);
 
-        return caregiverRepository.save(caregiver);
+        caregiverRepository.save(caregiver);
+
+        CaregiverCodeDto responseDto = new CaregiverCodeDto();
+        responseDto.setCode(code);
+
+        return responseDto;
     }
 
     @Transactional
