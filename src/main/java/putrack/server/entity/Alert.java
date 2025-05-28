@@ -1,10 +1,13 @@
 package putrack.server.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter @Setter
 public class Alert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +21,4 @@ public class Alert {
     private String content;
 
     private LocalDateTime timestamp;
-
-    @Column(length = 10)
-    private String type;
-
-    private Boolean delivered;
 }

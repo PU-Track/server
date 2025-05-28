@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import putrack.server.dto.AlertDto;
 import putrack.server.dto.PatientStatusDto;
 import putrack.server.dto.PredictedDateTimeDto;
 import putrack.server.dto.WeekAverageDataDto;
 import putrack.server.service.PatientService;
+import java.util.*;
 
 @RestController
 @RequestMapping("/patient")
@@ -27,4 +29,11 @@ public class PatientController {
     public WeekAverageDataDto getWeekAverageData(@PathVariable("patientId") Integer patientId) {
         return patientService.getWeekAverageData(patientId);
     }
+
+    @Operation(summary = "지금까지의 알림 목록", description = "현재 시간까지의 알림 목록")
+    @GetMapping("/{patientId}/alert")
+    public List<AlertDto> getAlertForPatient(@PathVariable("patientId") Integer patientId) {
+        return patientService.getAlertForPatient(patientId);
+    }
+
 }

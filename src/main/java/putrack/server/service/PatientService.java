@@ -5,13 +5,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import putrack.server.dto.AverageDataDto;
-import putrack.server.dto.PatientStatusDto;
-import putrack.server.dto.PredictedDateTimeDto;
-import putrack.server.dto.WeekAverageDataDto;
+import putrack.server.dto.*;
 import putrack.server.entity.AverageData;
 import putrack.server.entity.Patient;
 import putrack.server.entity.PatientStatus;
+import putrack.server.entity.Alert;
+import putrack.server.repository.AlertRepository;
 import putrack.server.repository.AverageDataRepository;
 import putrack.server.repository.PatientRepository;
 import java.util.*;
@@ -29,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class PatientService {
     private final PatientRepository patientRepository;
     private final AverageDataRepository averageDataRepository;
+    private final AlertRepository alertRepository;
 
     @Transactional
     public PredictedDateTimeDto predictChangeTime(Integer patientId, PatientStatusDto dto) {
@@ -89,6 +89,20 @@ public class PatientService {
         result.setThisWeekData(thisWeekDto);
 
         return result;
+    }
+
+    @Transactional
+    public List<AlertDto> getAlertForPatient(Integer patientId) {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Alert> alerts = alertRepository.findByPatient_PatientIdAndTimestampLessThanEqual(patientId, now);
+
+        return alerts.stream().map(alert -> {
+            AlertDto dto = new AlertDto();
+            dto.setContent(alert.getContent());
+            dto.setTimestamp(alert.getTimestamp());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     private AverageDataDto convertToDto(AverageData entity) {
