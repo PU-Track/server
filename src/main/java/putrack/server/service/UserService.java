@@ -5,6 +5,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import putrack.server.dto.CaregiverCodeDto;
+import putrack.server.dto.CaregiverDto;
 import putrack.server.dto.CaregiverRegisterDto;
 import putrack.server.dto.PatientDto;
 import putrack.server.entity.Caregiver;
@@ -43,6 +44,20 @@ public class UserService {
         responseDto.setCode(code);
 
         return responseDto;
+    }
+
+    @Transactional
+    public CaregiverDto getCaregiver(String code) {
+        Caregiver caregiver = caregiverRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("해당 간병인을 찾을 수 없습니다: " + code));
+
+        CaregiverDto dto = new CaregiverDto();
+        dto.setName(caregiver.getName());
+        dto.setAge(caregiver.getAge());
+        dto.setGender(caregiver.getGender());
+        dto.setRole(caregiver.getRole());
+
+        return dto;
     }
 
     @Transactional
