@@ -23,6 +23,8 @@ public class FcmService {
             throw new IllegalArgumentException("해당 code에 대한 pushToken이 존재하지 않습니다.");
         }
 
+        System.out.println("pushToken: " + caregiver.getPushToken());
+
         Notification notification = Notification.builder()
                 .setTitle(title)
                 .setBody(body)
