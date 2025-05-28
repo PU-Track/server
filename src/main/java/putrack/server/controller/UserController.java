@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import putrack.server.dto.CaregiverRegisterDto;
-import putrack.server.dto.PatientDto;
-import putrack.server.dto.PushTokenRequestDto;
+import putrack.server.dto.*;
 import putrack.server.entity.Caregiver;
 import putrack.server.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +21,14 @@ public class UserController {
 
     @Operation(summary = "간병인 등록", description = "새로운 간병인을 등록합니다. (role: CAREGIVER, DOCTOR, NURSE, NURSING_ASSISTANT, OTHER, gender: F, M)")
     @PostMapping("/caregiver/register")
-    public ResponseEntity<Caregiver> registerCaregiver(@RequestBody CaregiverRegisterDto dto) {
-        Caregiver caregiver = userService.registerCaregiver(dto);
-        return ResponseEntity.ok(caregiver);
+    public CaregiverCodeDto registerCaregiver(@RequestBody CaregiverRegisterDto dto) {
+        return userService.registerCaregiver(dto);
+    }
+
+    @Operation(summary = "간병인 정보", description = "간병인(유저)에 대한 정보를 반환합니다.")
+    @GetMapping("/caregiver")
+    public CaregiverDto getCaregiver(@Parameter(description = "간병인 코드") @RequestParam("code") String code) {
+        return userService.getCaregiver(code);
     }
 
     @Operation(summary = "FCM 토큰 등록", description = "간병인에 대한 FCM 토큰을 등록합니다.")
