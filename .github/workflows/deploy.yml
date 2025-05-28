@@ -56,6 +56,7 @@ jobs:
               -e RDS_DB_NAME=${{ secrets.RDS_DB_NAME }} \
               -e RDS_USERNAME=${{ secrets.RDS_USERNAME }} \
               -e RDS_PASSWORD=${{ secrets.RDS_PASSWORD }} \
+              -e OPENAI_API=${{ secrets.OPENAI_API }} \
               -v /home/ubuntu/secrets/firebase-key.json:/app/credentials/firebase-key.json \
               -v /home/ubuntu/secrets/fcm-key.json:/app/credentials/fcm-key.json \
               13155a1/putrack-server:latest

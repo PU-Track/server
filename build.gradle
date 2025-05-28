@@ -34,6 +34,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	implementation 'com.google.firebase:firebase-admin:9.4.3'
+	implementation 'com.openai:openai-java:2.2.1'
+
 }
 
 tasks.named('test') {
