@@ -308,6 +308,7 @@ public class PatientService {
 
 //                LocalDateTime now = LocalDateTime.parse("2025-05-31T23:59:00");
                 LocalDateTime now = LocalDateTime.now();
+                System.out.println("now: " + now);
 
                 // tag들을 timestamp 기준으로 정렬
                 List<Map<String, Object>> sortedTags = new ArrayList<>();
@@ -319,7 +320,6 @@ public class PatientService {
                 sortedTags.sort(Comparator.comparing(tag -> LocalDateTime.parse((String) tag.get("timestamp"))));
 
                 for (int i = 0; i < sortedTags.size(); i++) {
-                    // ... (기존 for문 내부 코드 그대로)
                     Map<String, Object> tag = sortedTags.get(i);
                     String tagTimestamp = (String) tag.get("timestamp");
                     Number tagDeviceIdRaw = (Number) tag.get("device_id");
