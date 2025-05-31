@@ -44,7 +44,7 @@ public class PatientService {
     private final OpenAIClient client;
 
     @Transactional
-    public PredictedDateTimeDto predictChangeTime(Integer patientId, PatientStatusDto dto) {
+    public PredictedDateTimeDto predictChangeTime(String code, Integer patientId, PatientStatusDto dto) {
         LocalDateTime now = LocalDateTime.now().withNano(0);
         ;
         LocalDateTime predictedTime;
@@ -52,7 +52,7 @@ public class PatientService {
         if (dto.getStatus() == PatientStatus.LYING) {
             predictedTime = predictForLyingStatus(patientId, now);
         } else if (dto.getStatus() == PatientStatus.SLEEPING) {
-            predictedTime = predictForSleepingStatus(patientId, now);
+            predictedTime = predictForSleepingStatus(code, patientId, now);
         } else if (dto.getStatus() == PatientStatus.SITTING) {
             Duration duration = Duration.between(dto.getPostureStartTime(), now);
             double elapsedTime = duration.toMillis() / 60000.0;
@@ -165,7 +165,7 @@ public class PatientService {
         return now.plusMinutes(averageInterval);
     }
 
-    private LocalDateTime predictForSleepingStatus(Integer patientId, LocalDateTime now) {
+    private LocalDateTime predictForSleepingStatus(String code, Integer patientId, LocalDateTime now) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("해당 환자를 찾을 수 없습니다."));
 
@@ -186,7 +186,6 @@ public class PatientService {
         System.out.println("OpenAI Response: " + chatResponse);
 
         // 간병인에게 알림 전송
-        String code = "SUKA"; // 추후 변경
         sendAlertToCaregiver(code, patientId, chatResponse);
 
         return nextWakeUp;
