@@ -90,11 +90,11 @@ public class PatientService {
         );
 
         List<AverageDataDto> lastWeekDto = lastWeekData.stream()
-                .map(this::convertToDto)
+                .map(data -> convertToDto(data, patientId))
                 .collect(Collectors.toList());
 
         List<AverageDataDto> thisWeekDto = thisWeekData.stream()
-                .map(this::convertToDto)
+                .map(data -> convertToDto(data, patientId))
                 .collect(Collectors.toList());
 
         WeekAverageDataDto result = new WeekAverageDataDto();
@@ -114,6 +114,7 @@ public class PatientService {
             AlertDto dto = new AlertDto();
             dto.setContent(alert.getContent());
             dto.setTimestamp(alert.getTimestamp());
+            dto.setTitle(alert.getTitle());
             return dto;
         }).collect(Collectors.toList());
 
@@ -123,7 +124,7 @@ public class PatientService {
         return alertListDto;
     }
 
-    private AverageDataDto convertToDto(AverageData entity) {
+    private AverageDataDto convertToDto(AverageData entity, Integer patientId) {
         AverageDataDto dto = new AverageDataDto();
         dto.setDate(entity.getDate());
         dto.setAirTemp(entity.getAirTemp());
@@ -131,6 +132,23 @@ public class PatientService {
         dto.setCushionTemp(entity.getCushionTemp());
         dto.setChangeInterval(entity.getChangeInterval());
         dto.setDayOfWeek(getDayOfWeekShort(entity.getDate()));
+
+        LocalDate date = entity.getDate();
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay;
+
+        if (date.equals(LocalDate.now())) {
+            endOfDay = LocalDateTime.now();
+        } else {
+            endOfDay = date.atTime(LocalTime.MAX);
+        }
+
+        Optional<Alert> latestAlert = alertRepository.findTopByPatientPatientIdAndTimestampBetweenOrderByTimestampDesc(
+                patientId, startOfDay, endOfDay
+        );
+
+        dto.setAlert(latestAlert.map(Alert::getContent).orElse("")); // 없으면 빈 문자열
+
         return dto;
     }
 

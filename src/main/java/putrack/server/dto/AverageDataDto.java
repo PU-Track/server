@@ -12,4 +12,5 @@ public class AverageDataDto {
     private Double airHumid;
     private Double cushionTemp;
     private Double changeInterval;
+    private String alert;
 }
