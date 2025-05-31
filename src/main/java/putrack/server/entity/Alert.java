@@ -18,6 +18,9 @@ public class Alert {
     private Patient patient;
 
     @Column(columnDefinition = "TEXT", nullable = false)
+    private String title;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     private LocalDateTime timestamp;
