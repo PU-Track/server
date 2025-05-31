@@ -1,6 +1,7 @@
 package putrack.server.service;
 
 import com.google.firebase.database.*;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
 import com.openai.models.chat.completions.ChatCompletion;
@@ -18,6 +19,8 @@ import putrack.server.entity.Alert;
 import putrack.server.repository.AlertRepository;
 import putrack.server.repository.AverageDataRepository;
 import putrack.server.repository.PatientRepository;
+
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -25,7 +28,6 @@ import java.util.concurrent.CountDownLatch;
 import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +39,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final AverageDataRepository averageDataRepository;
     private final AlertRepository alertRepository;
+    private final FcmService fcmService;
 
     private final OpenAIClient client;
 
@@ -156,13 +159,17 @@ public class PatientService {
             nextWakeUp = nextWakeUp.plusDays(1);
         }
 
-        // 오늘 데이터를 위한 프롬프트 생성
+        // 프롬프트 생성
         String prompt = makePrompt(patientId);
         System.out.println("prompt: " + prompt);
 
+        // openai api 호출
         String chatResponse = getChatResponse(prompt);
-
         System.out.println("OpenAI Response: " + chatResponse);
+
+        // 간병인에게 알림 전송
+        String code = "SUKA"; // 추후 변경
+        sendAlertToCaregiver(code, patientId, chatResponse);
 
         return nextWakeUp;
     }
@@ -248,7 +255,6 @@ public class PatientService {
 
         return promptBuilder.toString();
     }
-
 
     public String getTodaySensorAveragesByDeviceId(int deviceId) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
@@ -414,5 +420,35 @@ public class PatientService {
                 .orElseThrow(() -> new RuntimeException("해당 환자를 찾을 수 없습니다: " + patientId));
 
         return patient.toString();
+    }
+
+    public void sendAlertToCaregiver(String code, Integer patientId, String content) {
+        String patientName = patientRepository.getReferenceById(patientId).getName();
+        LocalDate today = LocalDate.now();
+        String formattedDate = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        String title = String.format("%s님의 오늘 건강 리포트 (%s)", patientName, formattedDate);
+
+        try {
+            fcmService.sendMessage(code, title, content);
+            System.out.println("-- 알림 전송 성공");
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+
+            // MessagingErrorCode 확인
+            String errorCode = (e.getMessagingErrorCode() != null) ? e.getMessagingErrorCode().name() : "없음";
+            System.out.println("MessagingErrorCode: " + errorCode);
+
+            // HttpResponse 확인
+            if (e.getHttpResponse() != null) {
+                System.out.println("HTTP Status Code: " + e.getHttpResponse().getStatusCode());
+                System.out.println("HTTP Response Body: " + e.getHttpResponse().getContent());
+            } else {
+                System.out.println("HttpResponse가 null입니다.");
+            }
+
+            System.out.println("-- 알림 전송 실패");
+        }
+
     }
 }
