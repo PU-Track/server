@@ -423,14 +423,25 @@ public class PatientService {
     }
 
     public void sendAlertToCaregiver(String code, Integer patientId, String content) {
-        String patientName = patientRepository.getReferenceById(patientId).getName();
+        Patient patient = patientRepository.getReferenceById(patientId);
         LocalDate today = LocalDate.now();
         String formattedDate = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        String title = String.format("%s님의 오늘 건강 리포트 (%s)", patientName, formattedDate);
+        String title = String.format("%s님의 오늘 건강 리포트 (%s)", patient.getName(), formattedDate);
 
         try {
             fcmService.sendMessage(code, title, content);
+
+            // db에 alert 저장
+
+            Alert alert = new Alert();
+            alert.setPatient(patient);
+            alert.setTitle(title);
+            alert.setContent(content);
+            alert.setTimestamp(LocalDateTime.now());
+
+            alertRepository.save(alert);
+
             System.out.println("-- 알림 전송 성공");
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
