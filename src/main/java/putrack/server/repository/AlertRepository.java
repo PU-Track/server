@@ -8,5 +8,5 @@ import java.util.*;
 
 public interface AlertRepository extends JpaRepository<Alert, Integer> {
     List<Alert> findByPatient_PatientIdAndTimestampLessThanEqual(Integer patientId, LocalDateTime now);
-
+    Optional<Alert> findTopByPatientPatientIdAndTimestampBetweenOrderByTimestampDesc(Integer patientId, LocalDateTime start, LocalDateTime end);
 }

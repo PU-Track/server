@@ -44,7 +44,7 @@ public class PatientService {
     private final OpenAIClient client;
 
     @Transactional
-    public PredictedDateTimeDto predictChangeTime(Integer patientId, PatientStatusDto dto) {
+    public PredictedDateTimeDto predictChangeTime(String code, Integer patientId, PatientStatusDto dto) {
         LocalDateTime now = LocalDateTime.now().withNano(0);
         ;
         LocalDateTime predictedTime;
@@ -52,7 +52,7 @@ public class PatientService {
         if (dto.getStatus() == PatientStatus.LYING) {
             predictedTime = predictForLyingStatus(patientId, now);
         } else if (dto.getStatus() == PatientStatus.SLEEPING) {
-            predictedTime = predictForSleepingStatus(patientId, now);
+            predictedTime = predictForSleepingStatus(code, patientId, now);
         } else if (dto.getStatus() == PatientStatus.SITTING) {
             Duration duration = Duration.between(dto.getPostureStartTime(), now);
             double elapsedTime = duration.toMillis() / 60000.0;
@@ -90,11 +90,11 @@ public class PatientService {
         );
 
         List<AverageDataDto> lastWeekDto = lastWeekData.stream()
-                .map(this::convertToDto)
+                .map(data -> convertToDto(data, patientId))
                 .collect(Collectors.toList());
 
         List<AverageDataDto> thisWeekDto = thisWeekData.stream()
-                .map(this::convertToDto)
+                .map(data -> convertToDto(data, patientId))
                 .collect(Collectors.toList());
 
         WeekAverageDataDto result = new WeekAverageDataDto();
@@ -114,6 +114,7 @@ public class PatientService {
             AlertDto dto = new AlertDto();
             dto.setContent(alert.getContent());
             dto.setTimestamp(alert.getTimestamp());
+            dto.setTitle(alert.getTitle());
             return dto;
         }).collect(Collectors.toList());
 
@@ -123,7 +124,7 @@ public class PatientService {
         return alertListDto;
     }
 
-    private AverageDataDto convertToDto(AverageData entity) {
+    private AverageDataDto convertToDto(AverageData entity, Integer patientId) {
         AverageDataDto dto = new AverageDataDto();
         dto.setDate(entity.getDate());
         dto.setAirTemp(entity.getAirTemp());
@@ -131,6 +132,23 @@ public class PatientService {
         dto.setCushionTemp(entity.getCushionTemp());
         dto.setChangeInterval(entity.getChangeInterval());
         dto.setDayOfWeek(getDayOfWeekShort(entity.getDate()));
+
+        LocalDate date = entity.getDate();
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay;
+
+        if (date.equals(LocalDate.now())) {
+            endOfDay = LocalDateTime.now();
+        } else {
+            endOfDay = date.atTime(LocalTime.MAX);
+        }
+
+        Optional<Alert> latestAlert = alertRepository.findTopByPatientPatientIdAndTimestampBetweenOrderByTimestampDesc(
+                patientId, startOfDay, endOfDay
+        );
+
+        dto.setAlert(latestAlert.map(Alert::getContent).orElse("")); // 없으면 빈 문자열
+
         return dto;
     }
 
@@ -147,7 +165,7 @@ public class PatientService {
         return now.plusMinutes(averageInterval);
     }
 
-    private LocalDateTime predictForSleepingStatus(Integer patientId, LocalDateTime now) {
+    private LocalDateTime predictForSleepingStatus(String code, Integer patientId, LocalDateTime now) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("해당 환자를 찾을 수 없습니다."));
 
@@ -168,7 +186,6 @@ public class PatientService {
         System.out.println("OpenAI Response: " + chatResponse);
 
         // 간병인에게 알림 전송
-        String code = "SUKA"; // 추후 변경
         sendAlertToCaregiver(code, patientId, chatResponse);
 
         return nextWakeUp;
