@@ -240,6 +240,7 @@ public class PatientService {
 
     public String getChatResponse(String prompt) {
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                .addSystemMessage("당신은 욕창 예방을 위한 환자 모니터링 시스템의 의료 데이터 분석 전문가입니다. 응답은 3~4문장으로 구성된 한 문단으로 작성하며, 각 문장은 '~입니다'로 끝나야 합니다. 분석은 간결하고 명확하며, 이상 징후와 건강 위험 요인을 포함해야 합니다.")
                 .addUserMessage(prompt)
                 .model(ChatModel.GPT_4_1) // GPT-4 Turbo
                 .build();
@@ -255,26 +256,25 @@ public class PatientService {
         String lastData = getLastThreeDaysData(patientId).trim();
         String patientData = getPatientData(patientId).trim();
 
-        // 프롬프트 작성
-        promptBuilder.append("다음은 욕창 예방을 위해 수집된 데이터입니다.\n")
+        promptBuilder.append("다음은 욕창 예방을 위한 환자 모니터링 데이터입니다.\n")
+                .append("각 데이터는 다음과 같습니다:\n")
                 .append("- 오늘의 실시간 쿠션 온도 데이터\n")
-                .append("- 지난 3일 간의 평균 데이터\n")
+                .append("- 최근 3일간의 평균 데이터\n")
                 .append("- 환자 정보\n\n")
-                .append("데이터를 분석하여 아래 내용을 알려주세요:\n")
-                .append("1. 오늘의 쿠션 온도 패턴에 대한 간단한 요약\n")
-                .append("2. 데이터에서 감지되는 이상치 여부\n")
+                .append("이 데이터를 기반으로 다음 항목을 간결하게 요약해 주세요:\n")
+                .append("1. 오늘의 쿠션 온도 변화 패턴 요약\n")
+                .append("2. 데이터에서 발견된 이상치 여부\n")
                 .append("3. 예상되는 건강 위험 요소\n\n")
-                .append("분석 결과는 줄바꿈 없이, 하나의 문단으로 이어지는 형태로 작성해주세요.\n")
-                .append("응답은 '~입니다'와 같은 형식으로 반환되어야 하며, 총 3~4문장으로 이루어진 한 문단입니다. \n\n")
                 .append("[오늘의 데이터]\n").append(todayData).append("\n\n")
-                .append("[지난 3일간의 평균 데이터]\n").append(lastData).append("\n\n")
+                .append("[최근 3일간의 평균 데이터]\n").append(lastData).append("\n\n")
                 .append("[환자 정보]\n").append(patientData);
+
 
         return promptBuilder.toString();
     }
 
     public String getTodaySensorAveragesByDeviceId(int deviceId) {
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("data");
         StringBuilder resultBuilder = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1); // latch 추가
 

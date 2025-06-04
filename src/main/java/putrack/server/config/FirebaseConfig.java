@@ -37,27 +37,5 @@ public class FirebaseConfig {
         } else {
             System.out.println("FirebaseApp (기본 DB) 이미 초기화됨: " + FirebaseApp.getInstance().getName());
         }
-
-//        // fcm
-//        FileInputStream fcmServiceAccount = new FileInputStream(fcmCredentialsPath);
-//        FirebaseOptions fcmOptions = FirebaseOptions.builder()
-//                .setCredentials(GoogleCredentials.fromStream(fcmServiceAccount))
-//                .setProjectId("pu-track-pushnotification")
-//                .build();
-//
-//        boolean hasFcmApp = FirebaseApp.getApps().stream()
-//                .anyMatch(app -> app.getName().equals("fcmApp"));
-//
-//        if (!hasFcmApp) {
-//            FirebaseApp.initializeApp(fcmOptions, "fcmApp");
-//            System.out.println("FirebaseApp (fcmApp) 초기화 완료: " + FirebaseApp.getInstance("fcmApp").getName());
-//        } else {
-//            System.out.println("FirebaseApp (fcmApp) 이미 초기화됨: " + FirebaseApp.getInstance("fcmApp").getName());
-//        }
-//
-//        // 현재 등록된 FirebaseApp 목록 확인
-//        System.out.println("현재 등록된 FirebaseApp 목록:");
-//        FirebaseApp.getApps().forEach(app -> System.out.println(" - " + app.getName()));
-
     }
 }
